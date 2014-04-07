@@ -12,6 +12,8 @@ import rss_msgs.ReverseMsg;
 import rss_msgs.MotionMsg;
 import rss_msgs.OdometryMsg;
 import rss_msgs.PositionTargetMsg;
+import rss_msgs.PositionMsg;
+import rss_msgs.WaypointMsg;
 import org.ros.message.MessageListener;
 import org.ros.namespace.GraphName;
 import org.ros.node.topic.Subscriber;
@@ -40,6 +42,8 @@ public class Listener extends AbstractNodeMain {
     private Subscriber<OdometryMsg> motorOdoSub;
     private Subscriber<ArmMsg> armSub;
     private Subscriber<ReverseMsg> motorRevSub;
+    private Subscriber<PositionMsg> posSub;
+    private Subscriber<WaypointMsg> waypointSub;
 
     @Override
     public void onStart(final ConnectedNode node) {
@@ -65,16 +69,27 @@ public class Listener extends AbstractNodeMain {
             robot.enableMotors(true);
 	    robot.setRobotVelocityController(robotPositionController);
 
-
+	        posSub = node.newSubscriber("/loc/Position", "rss_msgs/PositionMsg");
+	        posSub.addMessageListener(new MotorListenerForPosition(robotPositionController));
+	        log.infor("pos Subscriber created");
+	        
+	        /* Uncomment to get goal updates from old code.. check topics though..
             motorPosSub = node.newSubscriber("command/Motors", "rss_msgs/PositionTargetMsg");
             motorPosSub.addMessageListener(new MotorListenerForPositionControl(robotPositionController));
             log.info("motor Subscriber created");
+            */
 
-
+            waypointSub = node.newSubscriber("/path/Waypoint", "rss_msgs/WaypointMsg");
+            waypointSub.addMessageListener(new MotorListenerForWaypoint(robotPositionController));
+            log.infor("waypoint Subscriber created");
+            
+            /* Uncomment to get updates from odometry 
+             * 
             motorOdoSub = node.newSubscriber("/rss/odometry", "rss_msgs/OdometryMsg");
             motorOdoSub.addMessageListener(new MotorListenerForOdometry(robotPositionController));
             log.info("motor odometry subscriber created");
-
+             */
+            
             motorRevSub = node.newSubscriber("commands/Motors/Reverse", "rss_msgs/ReverseMsg");
             motorRevSub.addMessageListener(new MotorListenerForReverse(robotPositionController));
             log.info("motor reverse subscriber created");
