@@ -24,6 +24,8 @@ import org.ros.internal.node.topic.DefaultSubscriber;
 import motion.Motor.MotorListenerForPositionControl;
 import motion.Motor.MotorListenerForOdometry;
 import motion.Motor.MotorListenerForReverse;
+import motion.Motor.MotorListenerForWaypoint;
+import motion.Motor.MotorListenerForPosition;
 import motion.Motor.RobotPositionController;
 import motion.Servo.ServoListener;
 import MotorControl.RobotBase;
