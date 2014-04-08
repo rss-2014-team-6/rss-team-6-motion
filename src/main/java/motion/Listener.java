@@ -73,7 +73,7 @@ public class Listener extends AbstractNodeMain {
 
 	        posSub = node.newSubscriber("/loc/Position", "rss_msgs/PositionMsg");
 	        posSub.addMessageListener(new MotorListenerForPosition(robotPositionController));
-	        log.infor("pos Subscriber created");
+	        log.info("pos Subscriber created");
 	        
 	        /* Uncomment to get goal updates from old code.. check topics though..
             motorPosSub = node.newSubscriber("command/Motors", "rss_msgs/PositionTargetMsg");
@@ -83,7 +83,7 @@ public class Listener extends AbstractNodeMain {
 
             waypointSub = node.newSubscriber("/path/Waypoint", "rss_msgs/WaypointMsg");
             waypointSub.addMessageListener(new MotorListenerForWaypoint(robotPositionController));
-            log.infor("waypoint Subscriber created");
+            log.info("waypoint Subscriber created");
             
             /* Uncomment to get updates from odometry 
              * 
