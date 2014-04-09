@@ -225,6 +225,8 @@ public class RobotBase extends Observable {
      **/
     public void setRobotVelocityController(RobotVelocityController vc) {
         robotVelocityController = vc;
+
+	System.out.println("\n\n\n GOT A ROBOT POSITON (sic) CONTROLLER!\n\n\n");
     }
 
     /**
@@ -356,6 +358,7 @@ public class RobotBase extends Observable {
 
         // get the new pwm commands
         synchronized (pwmGoal) {
+	    System.out.println("\n ROBOT POSITON CONTROLLER calling control step!\n");
             robotVelocityController.controlStep(pwmGoal);
         }
     }
@@ -486,6 +489,8 @@ public class RobotBase extends Observable {
                 }
                 catch (InterruptedException ex) {
                     // ignore
+
+		    System.out.println("ROBOT POSITON CONTROLLER AHHH THREAD FAIL AHHH");
                 }
 
                 update();
