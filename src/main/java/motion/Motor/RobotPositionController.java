@@ -75,6 +75,8 @@ public class RobotPositionController extends RobotVelocityController {
         this.theta = theta;
 	//controlStep(new double[2]);
 	//System.out.println("pose set");
+
+	System.out.println("Robot position controller set pose: " + x + " " + y + " " + theta);
     }
 
     public void setGoal(double x, double y, double theta) {
@@ -82,6 +84,8 @@ public class RobotPositionController extends RobotVelocityController {
         this.yGoal = y;
         this.thetaGoal = theta; // theta goal of -1 means no theta goal
     	//System.out.println("goal set");
+
+	System.out.println("Robot position controller set GOAL: " + x + " " + y + " " + theta);
     }
 
     public void controlStep(double[] control) {
