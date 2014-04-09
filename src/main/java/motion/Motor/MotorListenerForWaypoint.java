@@ -20,7 +20,7 @@ public class MotorListenerForWaypoint implements MessageListener<WaypointMsg> {
         // System.out.println("got velocity command: " + msg.translationalVelocity + ", " + msg.rotationalVelocity);
         //System.out.println("odometry listner received message");
 
-	System.out.println("RobotPositionController received waypoint!!");
+	//System.out.println("RobotPositionController received waypoint!!");
         controller.setGoal(msg.getX(), msg.getY(), msg.getTheta());
     }
 

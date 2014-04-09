@@ -76,7 +76,7 @@ public class RobotPositionController extends RobotVelocityController {
 	//controlStep(new double[2]);
 	//System.out.println("pose set");
 
-	System.out.println("Robot position controller set pose: " + x + " " + y + " " + theta);
+	//System.out.println("Robot position controller set pose: " + x + " " + y + " " + theta);
     }
 
     public void setGoal(double x, double y, double theta) {
@@ -85,17 +85,17 @@ public class RobotPositionController extends RobotVelocityController {
         this.thetaGoal = theta; // theta goal of -1 means no theta goal
     	//System.out.println("goal set");
 
-	System.out.println("Robot position controller set GOAL: " + x + " " + y + " " + theta);
+	//System.out.println("Robot position controller set GOAL: " + x + " " + y + " " + theta);
     }
 
     public void controlStep(double[] control) {
         double xError = x - xGoal;
         double yError = y - yGoal;
         // double thetaError = theta - thetaGoal;
-       	System.out.println("");	
-	System.out.println("control step x: " + x + "     y: " + y + "     theta: " + theta);
-	System.out.println("goal x: " +xGoal+ "     y: " + yGoal + "     thetaGoal: " + thetaGoal);
-	System.out.println("");
+       	//System.out.println("");	
+	//System.out.println("control step x: " + x + "     y: " + y + "     theta: " + theta);
+	//System.out.println("goal x: " +xGoal+ "     y: " + yGoal + "     thetaGoal: " + thetaGoal);
+	//System.out.println("");
 
         if (theta == -1)
             System.out.println("Error: need to have odometry data before moving.");
@@ -116,8 +116,8 @@ public class RobotPositionController extends RobotVelocityController {
                     wheelAngVel = Math.max(minSpeed, wheelAngVel);
                     if (thetaError < 0)
                         wheelAngVel *= -1; // is this the right direction?
-                    System.out.println("turning to adjust final theta");
-                    System.out.println("angvel: " + wheelAngVel);
+                    //System.out.println("turning to adjust final theta");
+                    //System.out.println("angvel: " + wheelAngVel);
 
                     wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(-wheelAngVel);
                     wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(wheelAngVel);
@@ -155,10 +155,10 @@ public class RobotPositionController extends RobotVelocityController {
 		double wheelDiffVel = Math.min(maxSpeed, arcRotationGain * Math.abs(thetaError));
 		if (thetaError < 0) wheelDiffVel *= -1;
 
-                System.out.println("forwarding :P");
-                System.out.println("angvel: " + wheelAngVel);
-		System.out.println("diffvel: " + wheelDiffVel);
-		System.out.println("theta error: " + thetaError);
+                //System.out.println("forwarding :P");
+                //System.out.println("angvel: " + wheelAngVel);
+		//System.out.println("diffvel: " + wheelDiffVel);
+		//System.out.println("theta error: " + thetaError);
 		
                 wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(direction * (wheelAngVel - wheelDiffVel));
                 wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(direction * (wheelAngVel + wheelDiffVel));
@@ -170,8 +170,8 @@ public class RobotPositionController extends RobotVelocityController {
                 wheelAngVel = Math.max(minSpeed, wheelAngVel);
                 if (thetaError < 0)
                     wheelAngVel *= -1; // is this the right direction?
-                System.out.println("turning to face point");
-                System.out.println("angvel: " + wheelAngVel);
+                //System.out.println("turning to face point");
+                //System.out.println("angvel: " + wheelAngVel);
                 wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(-wheelAngVel);
                 wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(wheelAngVel);
             }
