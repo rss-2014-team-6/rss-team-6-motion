@@ -503,7 +503,7 @@ public class RobotBase extends Observable {
          * </p>
          **/
         protected synchronized void update() {
-            //System.out.println("Inside whole-robot control update");
+            System.out.println("Inside whole-robot control update");
 
             double sampleTime;
 
@@ -533,6 +533,8 @@ public class RobotBase extends Observable {
 
 	    // Get the elapsed time (in 1/1000000 sec ticks)
             // since the last set of encoder readings
+	    System.out.println("ROBOT BASE - before error");
+
 	    long orcTimeRaw = orc.clockReadSlave();
             long deltaOrcTimeRaw;
 
@@ -555,14 +557,17 @@ public class RobotBase extends Observable {
                 return;
             }
 
-            totalSampleTime += sampleTime;
+	    totalSampleTime += sampleTime;
 
             // System.err.println("encL: " + encL + "; encR: " + encR +
             // "; sampleTime: " + sampleTime);
 
             updateAndControl(sampleTime, encL, -encR); // flip
 
+	    System.out.println("ROBOT BASE - After update and control!!!!");
+
             if (motorsEnabled) {
+		System.out.println("ROBOT BASE - motors enabled and going!!");
                 // send the pwm commands to the motors
                 // maslab code will clamp
                 // System.out.println("\t\tSent output to motors!" +
