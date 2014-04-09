@@ -16,8 +16,8 @@ dependencies {
   compile 'com.github.rosjava.rosjava_msg_pkg:rss_msgs:[0.1,)'
   /* Example of a local subproject dependency */ 
   /* compile project(':sibling_gradle_project') */
+  compile project(':orc_utils')
   /* External ORC jars */
-  compile files('../../orc_utils/lib/orc-0.0.jar')
-  compile files('../../orc_utils/lib/uORCInterface-0.0.jar')
+  /* compile files('../../orc_utils/lib/uORCInterface-0.0.jar') */
 }
 
