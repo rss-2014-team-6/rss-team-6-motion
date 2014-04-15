@@ -64,8 +64,7 @@ public class Listener extends AbstractNodeMain {
             RobotPositionController robotPositionController = null;
             robotPositionController = new RobotPositionController(
                     new WheelVelocityControllerFF(),
-                    new WheelVelocityControllerFF(),
-                    0, 0, 0); // these three arguments are x, y, theta targets
+                    new WheelVelocityControllerFF());
             System.out.println("robot position controller created");
 
             robot.enableMotors(true);

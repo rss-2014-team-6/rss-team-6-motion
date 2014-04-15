@@ -32,18 +32,20 @@ public class RobotPositionController extends RobotVelocityController {
 
     protected int direction;
 
+    private boolean initialized;
+
     public RobotPositionController(
             WheelVelocityController leftWheelVelocityController,
-            WheelVelocityController rightWheelVelocityController,
-            double x, double y, double theta) {
+            WheelVelocityController rightWheelVelocityController) {
         super(leftWheelVelocityController, rightWheelVelocityController);
-        this.x = x;
-        this.y = y;
-        this.theta = theta;
-        this.xGoal = x;
-        this.yGoal = y;
-        this.thetaGoal = theta;
+        this.x = 0;
+        this.y = 0;
+        this.theta = 0;
+        this.xGoal = 0;
+        this.yGoal = 0;
+        this.thetaGoal = 0;
 	this.direction = 1;
+	initialized = false;
 	//System.out.println("I exist :O");
     }
 
@@ -73,6 +75,12 @@ public class RobotPositionController extends RobotVelocityController {
         this.x = x;
         this.y = y;
         this.theta = theta;
+	if(!initialized){
+	    initialized = true;
+	    this.xGoal = x;
+	    this.yGoal = y;
+	    this.thetaGoal = -1;
+	}
 	//controlStep(new double[2]);
 	//System.out.println("pose set");
 
