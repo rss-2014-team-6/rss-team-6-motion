@@ -88,6 +88,7 @@ public class RobotPositionController extends RobotVelocityController {
     }
 
     public void setGoal(double x, double y, double theta) {
+	initialized = true;
         this.xGoal = x;
         this.yGoal = y;
         this.thetaGoal = theta; // theta goal of -1 means no theta goal
