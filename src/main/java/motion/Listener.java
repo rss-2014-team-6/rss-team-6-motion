@@ -14,6 +14,7 @@ import rss_msgs.OdometryMsg;
 import rss_msgs.PositionTargetMsg;
 import rss_msgs.PositionMsg;
 import rss_msgs.WaypointMsg;
+import rss_msgs.VelocityMsg;
 import org.ros.message.MessageListener;
 import org.ros.namespace.GraphName;
 import org.ros.node.topic.Subscriber;
@@ -26,6 +27,7 @@ import motion.Motor.MotorListenerForOdometry;
 import motion.Motor.MotorListenerForReverse;
 import motion.Motor.MotorListenerForWaypoint;
 import motion.Motor.MotorListenerForPosition;
+import motion.Motor.MotorListenerForVelocity;
 import motion.Motor.RobotPositionController;
 import motion.Servo.ServoListener;
 import MotorControl.RobotBase;
@@ -46,6 +48,7 @@ public class Listener extends AbstractNodeMain {
     private Subscriber<ReverseMsg> motorRevSub;
     private Subscriber<PositionMsg> posSub;
     private Subscriber<WaypointMsg> waypointSub;
+    private Subscriber<VelocityMsg> velSub;
 
     @Override
     public void onStart(final ConnectedNode node) {
@@ -83,6 +86,10 @@ public class Listener extends AbstractNodeMain {
             waypointSub = node.newSubscriber("/path/Waypoint", "rss_msgs/WaypointMsg");
             waypointSub.addMessageListener(new MotorListenerForWaypoint(robotPositionController));
             log.info("waypoint Subscriber created");
+
+	    velSub = node.newSubscriber("/state/Velocity", "rss_msgs/VelocityMsg");
+	    velSub.addMessageListener(new MotorListenerForVelocity(robotPositionController));
+	    log.info("velocity subscriber created");
             
             /* Uncomment to get updates from odometry 
              * 

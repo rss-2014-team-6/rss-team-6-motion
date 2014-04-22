@@ -34,6 +34,13 @@ public class RobotPositionController extends RobotVelocityController {
 
     private boolean initialized;
 
+    private int mode;
+    private final int POSITION_MODE = 0;
+    private final int VELOCITY_MODE = 1;
+
+    private double translationVel;
+    private double rotationVel;
+
     public RobotPositionController(
             WheelVelocityController leftWheelVelocityController,
             WheelVelocityController rightWheelVelocityController) {
@@ -45,6 +52,9 @@ public class RobotPositionController extends RobotVelocityController {
         this.yGoal = 0;
         this.thetaGoal = 0;
 	this.direction = 1;
+	this.translationVel=0;
+	this.rotationVel=0;
+	mode = POSITION_MODE;
 	initialized = false;
 	//System.out.println("I exist :O");
     }
@@ -89,6 +99,7 @@ public class RobotPositionController extends RobotVelocityController {
 
     public void setGoal(double x, double y, double theta) {
 	initialized = true;
+	mode = POSITION_MODE;
         this.xGoal = x;
         this.yGoal = y;
         this.thetaGoal = theta; // theta goal of -1 means no theta goal
@@ -97,95 +108,107 @@ public class RobotPositionController extends RobotVelocityController {
 	//System.out.println("Robot position controller set GOAL: " + x + " " + y + " " + theta);
     }
 
+    public void setVelocity(double translation, double rotation){
+	mode = VELOCITY_MODE;
+	this.translationVel = translation;
+	this.rotationVel = rotation;
+    }
+
     public void controlStep(double[] control) {
-        double xError = x - xGoal;
-        double yError = y - yGoal;
-        // double thetaError = theta - thetaGoal;
-       	//System.out.println("");	
-	//System.out.println("control step x: " + x + "     y: " + y + "     theta: " + theta);
-	//System.out.println("goal x: " +xGoal+ "     y: " + yGoal + "     thetaGoal: " + thetaGoal);
-	//System.out.println("");
+	if(mode == POSITION_MODE){
+	    double xError = x - xGoal;
+	    double yError = y - yGoal;
+	    // double thetaError = theta - thetaGoal;
+	    //System.out.println("");	
+	    //System.out.println("control step x: " + x + "     y: " + y + "     theta: " + theta);
+	    //System.out.println("goal x: " +xGoal+ "     y: " + yGoal + "     thetaGoal: " + thetaGoal);
+	    //System.out.println("");
 
-        if (theta == -1)
-            System.out.println("Error: need to have odometry data before moving.");
+	    if (theta == -1)
+		System.out.println("Error: need to have odometry data before moving.");
 
-        if (Math.abs(xError) < THRESHOLD && Math.abs(yError) < THRESHOLD) {
-            // we've reached the target point, if necessary rotate to theta
+	    if (Math.abs(xError) < THRESHOLD && Math.abs(yError) < THRESHOLD) {
+		// we've reached the target point, if necessary rotate to theta
 
-            if (thetaGoal != -1) {
-                // we need to rotate
+		if (thetaGoal != -1) {
+		    // we need to rotate
 
-		// Get theta error in the range -pi to pi
-                double thetaError = normalizeTheta(thetaGoal - theta);
+		    // Get theta error in the range -pi to pi
+		    double thetaError = normalizeTheta(thetaGoal - theta);
 
-                if (Math.abs(thetaError) > THETA_THRESHOLD) {
-                    // we have a goal and we're not there
+		    if (Math.abs(thetaError) > THETA_THRESHOLD) {
+			// we have a goal and we're not there
 
-                    double wheelAngVel = Math.min(maxSpeed, rotationGain * Math.abs(thetaError));
-                    wheelAngVel = Math.max(minSpeed, wheelAngVel);
-                    if (thetaError < 0)
-                        wheelAngVel *= -1; // is this the right direction?
-                    //System.out.println("turning to adjust final theta");
-                    //System.out.println("angvel: " + wheelAngVel);
+			double wheelAngVel = Math.min(maxSpeed, rotationGain * Math.abs(thetaError));
+			wheelAngVel = Math.max(minSpeed, wheelAngVel);
+			if (thetaError < 0)
+			    wheelAngVel *= -1; // is this the right direction?
+			//System.out.println("turning to adjust final theta");
+			//System.out.println("angvel: " + wheelAngVel);
 
-                    wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(-wheelAngVel);
-                    wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(wheelAngVel);
-                }
-                else {
-                    // we've reached the goal!
-                    wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(0);
-                    wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(0);
-                }
-            }
-            else {
-                // we've reached the goal!
-                wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(0);
-                wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(0);
-		System.out.println("Robot thinks it reached the goal");
-            }
-        }
-        else {
-            // we need to head towards the target point
-            // this should be range -pi to pi
-            double theta_to_point = Math.atan2(yGoal - y, xGoal - x);
-	    double thetaError = normalizeTheta(theta_to_point - theta);
-
-	    if(direction < 0){ // reverse
-		thetaError = normalizeTheta(thetaError + Math.PI);
+			wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(-wheelAngVel);
+			wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(wheelAngVel);
+		    }
+		    else {
+			// we've reached the goal!
+			wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(0);
+			wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(0);
+		    }
+		}
+		else {
+		    // we've reached the goal!
+		    wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(0);
+		    wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(0);
+		    System.out.println("Robot thinks it reached the goal");
+		}
 	    }
+	    else {
+		// we need to head towards the target point
+		// this should be range -pi to pi
+		double theta_to_point = Math.atan2(yGoal - y, xGoal - x);
+		double thetaError = normalizeTheta(theta_to_point - theta);
 
-            if (Math.abs(thetaError) < THETA_THRESHOLD) {
-                // we are already headed towards the appropriate point
+		if(direction < 0){ // reverse
+		    thetaError = normalizeTheta(thetaError + Math.PI);
+		}
 
-                double distError = Math.sqrt(Math.pow(xGoal - x, 2) + Math.pow(yGoal - y, 2));
+		if (Math.abs(thetaError) < THETA_THRESHOLD) {
+		    // we are already headed towards the appropriate point
 
-                double wheelAngVel = Math.min(maxSpeed, translationGain * Math.sqrt(Math.abs(distError)));
-                wheelAngVel = Math.max(minSpeed, wheelAngVel);
-		double wheelDiffVel = Math.min(maxSpeed, arcRotationGain * Math.abs(thetaError));
-		if (thetaError < 0) wheelDiffVel *= -1;
+		    double distError = Math.sqrt(Math.pow(xGoal - x, 2) + Math.pow(yGoal - y, 2));
 
-                //System.out.println("forwarding :P");
-                //System.out.println("angvel: " + wheelAngVel);
-		//System.out.println("diffvel: " + wheelDiffVel);
-		//System.out.println("theta error: " + thetaError);
+		    double wheelAngVel = Math.min(maxSpeed, translationGain * Math.sqrt(Math.abs(distError)));
+		    wheelAngVel = Math.max(minSpeed, wheelAngVel);
+		    double wheelDiffVel = Math.min(maxSpeed, arcRotationGain * Math.abs(thetaError));
+		    if (thetaError < 0) wheelDiffVel *= -1;
+
+		    //System.out.println("forwarding :P");
+		    //System.out.println("angvel: " + wheelAngVel);
+		    //System.out.println("diffvel: " + wheelDiffVel);
+		    //System.out.println("theta error: " + thetaError);
 		
-		// TODO: UNHACK ME!
-                wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(-1 * direction * (wheelAngVel - wheelDiffVel));
-                wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(-1 * direction * (wheelAngVel + wheelDiffVel));
-            }
-            else {
-                // purely rotate to face that point
+		    // TODO: UNHACK ME!
+		    wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(-1 * direction * (wheelAngVel - wheelDiffVel));
+		    wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(-1 * direction * (wheelAngVel + wheelDiffVel));
+		}
+		else {
+		    // purely rotate to face that point
 
-                double wheelAngVel = Math.min(maxSpeed, rotationGain * Math.sqrt(Math.abs(thetaError)));
-                wheelAngVel = Math.max(minSpeed, wheelAngVel);
-                if (thetaError < 0)
-                    wheelAngVel *= -1; // is this the right direction?
-                //System.out.println("turning to face point");
-                //System.out.println("angvel: " + wheelAngVel);
-                wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(-wheelAngVel);
-                wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(wheelAngVel);
-            }
-        }
+		    double wheelAngVel = Math.min(maxSpeed, rotationGain * Math.sqrt(Math.abs(thetaError)));
+		    wheelAngVel = Math.max(minSpeed, wheelAngVel);
+		    if (thetaError < 0)
+			wheelAngVel *= -1; // is this the right direction?
+		    //System.out.println("turning to face point");
+		    //System.out.println("angvel: " + wheelAngVel);
+		    wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(-wheelAngVel);
+		    wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(wheelAngVel);
+		}
+	    }
+	}
+	else if(mode == VELOCITY_MODE){
+	    wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(translationVel - rotationVel);
+	    wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(translationVel + rotationVel);
+	}
 	
         super.controlStep(control);
     }
