@@ -32,9 +32,13 @@ public class RobotPositionController extends RobotVelocityController {
 
     protected int direction;
 
-    private boolean initialized;
+    /**
+     * Whether we've been initialized with pose data.
+     */
+    private boolean poseInitialized;
 
     private int mode;
+    private final int NO_MOVE_MODE = -1;
     private final int POSITION_MODE = 0;
     private final int VELOCITY_MODE = 1;
 
@@ -54,8 +58,8 @@ public class RobotPositionController extends RobotVelocityController {
 	this.direction = 1;
 	this.translationVel=0;
 	this.rotationVel=0;
-	mode = POSITION_MODE;
-	initialized = false;
+	mode = NO_MOVE_MODE;
+	poseInitialized = false;
 	//System.out.println("I exist :O");
     }
 
@@ -82,15 +86,10 @@ public class RobotPositionController extends RobotVelocityController {
     }
 
     public void setPose(double x, double y, double theta) {
+        poseInitialized = true;
         this.x = x;
         this.y = y;
         this.theta = theta;
-	if(!initialized){
-	    initialized = true;
-	    this.xGoal = x;
-	    this.yGoal = y;
-	    this.thetaGoal = -1;
-	}
 	//controlStep(new double[2]);
 	//System.out.println("pose set");
 
@@ -98,7 +97,6 @@ public class RobotPositionController extends RobotVelocityController {
     }
 
     public void setGoal(double x, double y, double theta) {
-	initialized = true;
 	mode = POSITION_MODE;
         this.xGoal = x;
         this.yGoal = y;
@@ -115,7 +113,8 @@ public class RobotPositionController extends RobotVelocityController {
     }
 
     public void controlStep(double[] control) {
-	if(mode == POSITION_MODE){
+	if(mode == POSITION_MODE && poseInitialized){
+            System.out.println("Position mode");
 	    double xError = x - xGoal;
 	    double yError = y - yGoal;
 	    // double thetaError = theta - thetaGoal;
@@ -124,6 +123,7 @@ public class RobotPositionController extends RobotVelocityController {
 	    //System.out.println("goal x: " +xGoal+ "     y: " + yGoal + "     thetaGoal: " + thetaGoal);
 	    //System.out.println("");
 
+            // Do we need this? Not sure if we can ever get non-initialized pose data from loc -tej
 	    if (theta == -1)
 		System.out.println("Error: need to have odometry data before moving.");
 
@@ -206,10 +206,12 @@ public class RobotPositionController extends RobotVelocityController {
 	    }
 	}
 	else if(mode == VELOCITY_MODE){
+            System.out.println("Velocity mode");
 	    wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(translationVel - rotationVel);
 	    wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(translationVel + rotationVel);
 	}
 	
+        System.out.println("output: " + wheelVelocityController[RobotBase.LEFT].getDesiredAngularVelocity() + "," + wheelVelocityController[RobotBase.RIGHT].getDesiredAngularVelocity());
         super.controlStep(control);
     }
 
