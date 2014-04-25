@@ -66,7 +66,7 @@ public class RobotBase extends Observable {
      * Control period in milliseconds.
      * </p>
      **/
-    protected static final int CONTROLLER_PERIOD_MS = 50;
+    protected static final int CONTROLLER_PERIOD_MS = 300;
     
     /**
      * <p>
