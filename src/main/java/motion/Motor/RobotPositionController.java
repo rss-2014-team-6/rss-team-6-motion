@@ -8,17 +8,36 @@ public class RobotPositionController extends RobotVelocityController {
 
     // overall strategy: rotate to face point, drive straight, adjust theta if necessary
 
-    protected double x;
-    protected double y;
-    protected double theta;
-    protected double xGoal;
-    protected double yGoal;
-    protected double thetaGoal;
+    /**
+     * Most recent localization pose in global space.
+     */
+    protected double locX;
+    protected double locY;
+    protected double locTheta;
+    /**
+     * Most recent localization pose in odo-space.
+     */
+    protected double baseOdoX;
+    protected double baseOdoY;
+    protected double baseOdoTheta;
+    /**
+     * Most recent goal pose in odo-space.
+     */
+    protected double goalOdoX;
+    protected double goalOdoY;
+    protected double goalOdoTheta;
+    /**
+     * Most recent odometry pose in odo-space.
+     */
+    protected double odoX;
+    protected double odoY;
+    protected double odoTheta;
+
     protected static final double maxSpeed = 4.0;
     protected static final double minSpeed = 2.0;
-    protected static final double rotationGain = 4.0; // Rotational gain for pure rotation to point
+    protected static final double rotationGain = 2.0; // Rotational gain for pure rotation to point
     protected static final double arcRotationGain = 1.0; // Rotational gain for arcing rotation component
-    protected static final double translationGain = 7.0; // Translational gain for arcing/linear motion
+    protected static final double translationGain = 5.0; // Translational gain for arcing/linear motion
 
     // ranges are in meters and bearings are in radians
     protected static final double RANGE_THRESHOLD = 0.05;
@@ -33,7 +52,8 @@ public class RobotPositionController extends RobotVelocityController {
     protected int direction;
 
     /**
-     * Whether we've been initialized with pose data.
+     * Whether we've been initialized with a global localization pose.
+     * Goals will be ignored until this is true.
      */
     private boolean poseInitialized;
 
@@ -49,15 +69,9 @@ public class RobotPositionController extends RobotVelocityController {
             WheelVelocityController leftWheelVelocityController,
             WheelVelocityController rightWheelVelocityController) {
         super(leftWheelVelocityController, rightWheelVelocityController);
-        this.x = 0;
-        this.y = 0;
-        this.theta = 0;
-        this.xGoal = 0;
-        this.yGoal = 0;
-        this.thetaGoal = 0;
 	this.direction = 1;
-	this.translationVel=0;
-	this.rotationVel=0;
+	this.translationVel = 0;
+	this.rotationVel = 0;
 	mode = NO_MOVE_MODE;
 	poseInitialized = false;
 	//System.out.println("I exist :O");
@@ -87,22 +101,51 @@ public class RobotPositionController extends RobotVelocityController {
 
     public void setPose(double x, double y, double theta) {
         poseInitialized = true;
-        this.x = x;
-        this.y = y;
-        this.theta = theta;
+        this.locX = x;
+        this.locY = y;
+        this.locTheta = theta;
+
+        // Save our current odo values into baseOdo
+        this.baseOdoX = odoX;
+        this.baseOdoY = odoY;
+        this.baseOdoTheta = odoTheta;
+
 	//controlStep(new double[2]);
 	//System.out.println("pose set");
 
 	//System.out.println("Robot position controller set pose: " + x + " " + y + " " + theta);
     }
 
+    public void setOdometry(double x, double y, double theta) {
+        System.out.println("Got odo msg: " + x + "," + y + "," + theta);
+        this.odoX = x;
+        this.odoY = y;
+        this.odoTheta = theta;
+    }
+
+    /**
+     * Converts global goal to odo-space goal and saves.
+     */
     public void setGoal(double x, double y, double theta) {
 	mode = POSITION_MODE;
-        this.xGoal = x;
-        this.yGoal = y;
-        this.thetaGoal = theta; // theta goal of -1 means no theta goal
-    	//System.out.println("goal set");
+        // Convert to local space first
+        // Remove global offset
+        double deltaX = x - locX;
+        double deltaY = y - locY;
+        // Rotate by -locTheta
+        double localX = Math.cos(-locTheta)*deltaX - Math.sin(-locTheta)*deltaY;
+        double localY = Math.sin(-locTheta)*deltaX + Math.cos(-locTheta)*deltaY;
+        // Rotate by +odoTheta
+        double localXRot = Math.cos(odoTheta)*deltaX - Math.sin(odoTheta)*deltaY;
+        double localYRot = Math.sin(odoTheta)*deltaX + Math.cos(odoTheta)*deltaY;
+        // Add odo offset
+        this.goalOdoX = localXRot + baseOdoX;
+        this.goalOdoY = localYRot + baseOdoY;
 
+        if (theta == -1)
+            this.goalOdoTheta = -1; // theta goal of -1 means no theta goal
+        else
+            this.goalOdoTheta = theta + (odoTheta - locTheta);
 	//System.out.println("Robot position controller set GOAL: " + x + " " + y + " " + theta);
     }
 
@@ -115,26 +158,22 @@ public class RobotPositionController extends RobotVelocityController {
     public void controlStep(double[] control) {
 	if(mode == POSITION_MODE && poseInitialized){
             System.out.println("Position mode");
-	    double xError = x - xGoal;
-	    double yError = y - yGoal;
+	    double xError = odoX - goalOdoX;
+	    double yError = odoY - goalOdoY;
 	    // double thetaError = theta - thetaGoal;
-	    //System.out.println("");	
-	    //System.out.println("control step x: " + x + "     y: " + y + "     theta: " + theta);
-	    //System.out.println("goal x: " +xGoal+ "     y: " + yGoal + "     thetaGoal: " + thetaGoal);
-	    //System.out.println("");
-
-            // Do we need this? Not sure if we can ever get non-initialized pose data from loc -tej
-	    if (theta == -1)
-		System.out.println("Error: need to have odometry data before moving.");
+	    System.out.println("");	
+	    System.out.println("control step x: " + odoX + "     y: " + odoY + "     theta: " + odoTheta);
+	    System.out.println("goal x: " +goalOdoX+ "     y: " + goalOdoY + "     theta-to-goal: " + Math.atan2(goalOdoY - odoY, goalOdoX - odoX));
+	    System.out.println("");
 
 	    if (Math.abs(xError) < THRESHOLD && Math.abs(yError) < THRESHOLD) {
 		// we've reached the target point, if necessary rotate to theta
 
-		if (thetaGoal != -1) {
+		if (goalOdoTheta != -1) {
 		    // we need to rotate
 
 		    // Get theta error in the range -pi to pi
-		    double thetaError = normalizeTheta(thetaGoal - theta);
+		    double thetaError = normalizeTheta(goalOdoTheta - odoTheta);
 
 		    if (Math.abs(thetaError) > THETA_THRESHOLD) {
 			// we have a goal and we're not there
@@ -165,8 +204,8 @@ public class RobotPositionController extends RobotVelocityController {
 	    else {
 		// we need to head towards the target point
 		// this should be range -pi to pi
-		double theta_to_point = Math.atan2(yGoal - y, xGoal - x);
-		double thetaError = normalizeTheta(theta_to_point - theta);
+		double theta_to_point = Math.atan2(goalOdoY - odoY, goalOdoX - odoX);
+		double thetaError = normalizeTheta(theta_to_point - odoTheta);
 
 		if(direction < 0){ // reverse
 		    thetaError = normalizeTheta(thetaError + Math.PI);
@@ -175,7 +214,7 @@ public class RobotPositionController extends RobotVelocityController {
 		if (Math.abs(thetaError) < THETA_THRESHOLD) {
 		    // we are already headed towards the appropriate point
 
-		    double distError = Math.sqrt(Math.pow(xGoal - x, 2) + Math.pow(yGoal - y, 2));
+		    double distError = Math.sqrt(Math.pow(xError, 2) + Math.pow(yError, 2));
 
 		    double wheelAngVel = Math.min(maxSpeed, translationGain * Math.sqrt(Math.abs(distError)));
 		    wheelAngVel = Math.max(minSpeed, wheelAngVel);
