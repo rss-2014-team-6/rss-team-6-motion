@@ -100,15 +100,18 @@ public class RobotPositionController extends RobotVelocityController {
     }
 
     public void setPose(double x, double y, double theta) {
-        poseInitialized = true;
-        this.locX = x;
-        this.locY = y;
-        this.locTheta = theta;
+        // TEMP: Only update localization when not going to a goal
+        if (mode != POSITION_MODE) {
+            poseInitialized = true;
+            this.locX = x;
+            this.locY = y;
+            this.locTheta = theta;
 
-        // Save our current odo values into baseOdo
-        this.baseOdoX = odoX;
-        this.baseOdoY = odoY;
-        this.baseOdoTheta = odoTheta;
+            // Save our current odo values into baseOdo
+            this.baseOdoX = odoX;
+            this.baseOdoY = odoY;
+            this.baseOdoTheta = odoTheta;
+        }
 
 	//controlStep(new double[2]);
 	//System.out.println("pose set");
@@ -136,8 +139,8 @@ public class RobotPositionController extends RobotVelocityController {
         double localX = Math.cos(-locTheta)*deltaX - Math.sin(-locTheta)*deltaY;
         double localY = Math.sin(-locTheta)*deltaX + Math.cos(-locTheta)*deltaY;
         // Rotate by +odoTheta
-        double localXRot = Math.cos(odoTheta)*deltaX - Math.sin(odoTheta)*deltaY;
-        double localYRot = Math.sin(odoTheta)*deltaX + Math.cos(odoTheta)*deltaY;
+        double localXRot = Math.cos(baseOdoTheta)*deltaX - Math.sin(baseOdoTheta)*deltaY;
+        double localYRot = Math.sin(baseOdoTheta)*deltaX + Math.cos(baseOdoTheta)*deltaY;
         // Add odo offset
         this.goalOdoX = localXRot + baseOdoX;
         this.goalOdoY = localYRot + baseOdoY;
@@ -145,7 +148,7 @@ public class RobotPositionController extends RobotVelocityController {
         if (theta == -1)
             this.goalOdoTheta = -1; // theta goal of -1 means no theta goal
         else
-            this.goalOdoTheta = theta + (odoTheta - locTheta);
+            this.goalOdoTheta = theta + (baseOdoTheta - locTheta);
 	//System.out.println("Robot position controller set GOAL: " + x + " " + y + " " + theta);
     }
 
@@ -192,12 +195,14 @@ public class RobotPositionController extends RobotVelocityController {
 			// we've reached the goal!
 			wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(0);
 			wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(0);
+                        mode = NO_MOVE_MODE;
 		    }
 		}
 		else {
 		    // we've reached the goal!
 		    wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(0);
 		    wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(0);
+                    mode = NO_MOVE_MODE;
 		    System.out.println("Robot thinks it reached the goal");
 		}
 	    }
