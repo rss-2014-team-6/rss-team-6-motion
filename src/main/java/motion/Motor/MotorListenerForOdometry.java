@@ -20,7 +20,7 @@ public class MotorListenerForOdometry implements MessageListener<OdometryMsg> {
         // System.out.println("got velocity command: " + msg.translationalVelocity + ", " + msg.rotationalVelocity);
         //System.out.println("odometry listner received message");
         //for now, this conflicts with pose -- don't want!  We'll update this once we get to local traversal
-	controller.setOdometry(msg.getX(), msg.getY(), msg.getTheta());
+	//controller.setPose(msg.getX(), msg.getY(), msg.getTheta());
     }
 
 }

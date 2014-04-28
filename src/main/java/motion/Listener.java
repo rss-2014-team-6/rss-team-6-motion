@@ -91,9 +91,12 @@ public class Listener extends AbstractNodeMain {
 	    velSub.addMessageListener(new MotorListenerForVelocity(robotPositionController));
 	    log.info("velocity subscriber created");
             
-            motorOdoSub = node.newSubscriber("/odo/Odometry", "rss_msgs/OdometryMsg");
+            /* Uncomment to get updates from odometry 
+             * 
+            motorOdoSub = node.newSubscriber("/rss/odometry", "rss_msgs/OdometryMsg");
             motorOdoSub.addMessageListener(new MotorListenerForOdometry(robotPositionController));
             log.info("motor odometry subscriber created");
+             */
             
             motorRevSub = node.newSubscriber("commands/Motors/Reverse", "rss_msgs/ReverseMsg");
             motorRevSub.addMessageListener(new MotorListenerForReverse(robotPositionController));
