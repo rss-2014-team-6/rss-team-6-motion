@@ -21,12 +21,6 @@ public class RobotPositionController extends RobotVelocityController {
     protected double baseOdoY;
     protected double baseOdoTheta;
     /**
-     * Most recent goal pose in global space.
-     */
-    protected double goalX;
-    protected double goalY;
-    protected double goalTheta;
-    /**
      * Most recent goal pose in odo-space.
      */
     protected double goalOdoX;
@@ -106,19 +100,17 @@ public class RobotPositionController extends RobotVelocityController {
     }
 
     public void setPose(double x, double y, double theta) {
-        poseInitialized = true;
-        this.locX = x;
-        this.locY = y;
-        this.locTheta = theta;
+        // TEMP: Only update localization when not going to a goal
+        if (mode != POSITION_MODE) {
+            poseInitialized = true;
+            this.locX = x;
+            this.locY = y;
+            this.locTheta = theta;
 
-        // Save our current odo values into baseOdo
-        this.baseOdoX = odoX;
-        this.baseOdoY = odoY;
-        this.baseOdoTheta = odoTheta;
-
-        // If we have a global goal, re-update our local odo version
-        if (mode == POSITION_MODE) {
-            updateGoalOdo();
+            // Save our current odo values into baseOdo
+            this.baseOdoX = odoX;
+            this.baseOdoY = odoY;
+            this.baseOdoTheta = odoTheta;
         }
 
 	//controlStep(new double[2]);
@@ -135,15 +127,14 @@ public class RobotPositionController extends RobotVelocityController {
     }
 
     /**
-     * Given updated values of our global pose (locX, locY, locTheta)
-     * and our base odo pose (baseOdoX, baseOdoY, baseOdoTheta) converts
-     * the set global goal coords into odo-space goal coords.
+     * Converts global goal to odo-space goal and saves.
      */
-    private void updateGoalOdo() {
+    public void setGoal(double x, double y, double theta) {
+	mode = POSITION_MODE;
         // Convert to local space first
         // Remove global offset
-        double deltaX = goalX - locX;
-        double deltaY = goalY - locY;
+        double deltaX = x - locX;
+        double deltaY = y - locY;
         // Rotate by -locTheta
         double localX = Math.cos(-locTheta)*deltaX - Math.sin(-locTheta)*deltaY;
         double localY = Math.sin(-locTheta)*deltaX + Math.cos(-locTheta)*deltaY;
@@ -154,21 +145,10 @@ public class RobotPositionController extends RobotVelocityController {
         this.goalOdoX = localXRot + baseOdoX;
         this.goalOdoY = localYRot + baseOdoY;
 
-        if (goalTheta == -1)
+        if (theta == -1)
             this.goalOdoTheta = -1; // theta goal of -1 means no theta goal
         else
-            this.goalOdoTheta = goalTheta + (baseOdoTheta - locTheta);
-    }
-
-    /**
-     * Converts global goal to odo-space goal and saves.
-     */
-    public void setGoal(double x, double y, double theta) {
-	mode = POSITION_MODE;
-        this.goalX = x;
-        this.goalY = y;
-        this.goalTheta = theta;
-        updateGoalOdo();
+            this.goalOdoTheta = theta + (baseOdoTheta - locTheta);
 	//System.out.println("Robot position controller set GOAL: " + x + " " + y + " " + theta);
     }
 
