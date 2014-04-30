@@ -14,8 +14,9 @@ public class RobotPositionController extends RobotVelocityController {
     protected double xGoal;
     protected double yGoal;
     protected double thetaGoal;
-    protected static final double maxSpeed = 4.0;
-    protected static final double minSpeed = 2.0;
+    protected static final double maxSpeed = 3.0;
+    protected static final double minTranslationSpeed = 1.5;
+    protected static final double minRotationSpeed = 2.0;
     protected static final double rotationGain = 2.0; // Rotational gain for pure rotation to point
     protected static final double arcRotationGain = 1.0; // Rotational gain for arcing rotation component
     protected static final double translationGain = 5.0; // Translational gain for arcing/linear motion
@@ -138,7 +139,7 @@ public class RobotPositionController extends RobotVelocityController {
 			// we have a goal and we're not there
 
 			double wheelAngVel = Math.min(maxSpeed, rotationGain * Math.abs(thetaError));
-			wheelAngVel = Math.max(minSpeed, wheelAngVel);
+			wheelAngVel = Math.max(minRotationSpeed, wheelAngVel);
 			if (thetaError < 0)
 			    wheelAngVel *= -1; // is this the right direction?
 			//System.out.println("turning to adjust final theta");
@@ -176,7 +177,7 @@ public class RobotPositionController extends RobotVelocityController {
 		    double distError = Math.sqrt(Math.pow(xGoal - x, 2) + Math.pow(yGoal - y, 2));
 
 		    double wheelAngVel = Math.min(maxSpeed, translationGain * Math.sqrt(Math.abs(distError)));
-		    wheelAngVel = Math.max(minSpeed, wheelAngVel);
+		    wheelAngVel = Math.max(minTranslationSpeed, wheelAngVel);
 		    double wheelDiffVel = Math.min(maxSpeed, arcRotationGain * Math.abs(thetaError));
 		    if (thetaError < 0) wheelDiffVel *= -1;
 
@@ -193,7 +194,7 @@ public class RobotPositionController extends RobotVelocityController {
 		    // purely rotate to face that point
 
 		    double wheelAngVel = Math.min(maxSpeed, rotationGain * Math.sqrt(Math.abs(thetaError)));
-		    wheelAngVel = Math.max(minSpeed, wheelAngVel);
+		    wheelAngVel = Math.max(minRotationSpeed, wheelAngVel);
 		    if (thetaError < 0)
 			wheelAngVel *= -1; // is this the right direction?
 		    //System.out.println("turning to face point");
