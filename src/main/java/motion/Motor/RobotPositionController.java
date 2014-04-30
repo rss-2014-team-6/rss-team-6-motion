@@ -18,16 +18,14 @@ public class RobotPositionController extends RobotVelocityController {
     protected static final double minSpeed = 2.0;
     protected static final double rotationGain = 2.0; // Rotational gain for pure rotation to point
     protected static final double arcRotationGain = 1.0; // Rotational gain for arcing rotation component
-    protected static final double translationGain = 4.0; // Translational gain for arcing/linear motion
+    protected static final double translationGain = 5.0; // Translational gain for arcing/linear motion
 
     // ranges are in meters and bearings are in radians
-    protected static final double RANGE_THRESHOLD = 0.05;
     protected static final double TRANSLATION_TO_ANGVEL = 1.0 / RobotBase.WHEEL_RADIUS_IN_M;
     protected static final double RANGE_KP = 1.0;
-    protected static final double BEARING_THRESHOLD = 0.25;
     protected static final double ROTATION_TO_ANGVEL = (RobotBase.WHEELBASE / 2.0) * TRANSLATION_TO_ANGVEL;
     protected static final double BEARING_KP = 2.0;
-    protected static final double THRESHOLD = .05;
+    protected static final double THRESHOLD = .03;
     protected static final double THETA_THRESHOLD = .1;
 
     protected int direction;
