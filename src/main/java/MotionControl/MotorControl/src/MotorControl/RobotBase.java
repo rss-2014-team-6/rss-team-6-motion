@@ -304,6 +304,7 @@ public class RobotBase extends Observable {
      *            the slew period in seconds, min effective is ~0.035s, max is
      *            8.0s.
      **/
+    /*
     public void setMotorSlewInterval(int wheel, double slewPeriod) {
 
         int slew = (int) (8.0 / slewPeriod);
@@ -318,6 +319,7 @@ public class RobotBase extends Observable {
 
         orc.motorSlewWrite(wheel, slew);
     }
+    */
 
     /**
      * <p>

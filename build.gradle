@@ -17,6 +17,7 @@ dependencies {
   /* Example of a local subproject dependency */ 
   /* compile project(':sibling_gradle_project') */
   compile project(':orc_utils')
+  /* UNCOMMENT FOR SIMULATOR compile project(':sim_orc_utils') */
   /* External ORC jars */
   /* compile files('../../orc_utils/lib/uORCInterface-0.0.jar') */
 }
