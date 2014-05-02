@@ -11,6 +11,8 @@ import javax.swing.JFrame;
 
 import uORCInterface.OrcController;
 
+import org.ros.node.ConnectedNode;
+
 /**
  * <p>
  * Whole-robot functionality for the RSSBot.
@@ -186,11 +188,14 @@ public class RobotBase extends Observable {
      * Construct a new robot.
      * </p>
      **/
-    public RobotBase() {
+    public RobotBase(ConnectedNode node) {
 
         startupTimeMS = System.currentTimeMillis();
 
         orc = new OrcController(MOTOR_PORT);
+        if (orc.isSim()) {
+            orc.setNode(node);
+        }
         /*
          * orc.setCacheLifetime(-1); //Disable cache for "real-time" timing
          * 

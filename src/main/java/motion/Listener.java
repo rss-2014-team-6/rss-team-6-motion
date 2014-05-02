@@ -60,7 +60,10 @@ public class Listener extends AbstractNodeMain {
             System.out.println("in main");
             orc = Orc.makeOrc(); // this orc is used only by the servo
                                  // controller, the robotbase makes its own
-            RobotBase robot = new RobotBase();
+            if (orc.isSim()) {
+                orc.setNode(node);
+            }
+            RobotBase robot = new RobotBase(node);
 
             System.out.println("robot base made");
 
