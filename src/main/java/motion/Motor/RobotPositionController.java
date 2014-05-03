@@ -186,8 +186,8 @@ public class RobotPositionController extends RobotVelocityController {
 		    //System.out.println("diffvel: " + wheelDiffVel);
 		    //System.out.println("theta error: " + thetaError);
 		
-		    wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(direction * (wheelAngVel - wheelDiffVel));
-		    wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(direction * (wheelAngVel + wheelDiffVel));
+		    wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(-1*direction * (wheelAngVel - wheelDiffVel));
+		    wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(-1*direction * (wheelAngVel + wheelDiffVel));
 		}
 		else {
 		    // purely rotate to face that point
