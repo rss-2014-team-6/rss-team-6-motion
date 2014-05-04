@@ -3,6 +3,7 @@ package motion.Motor;
 import MotorControl.RobotBase;
 import MotorControl.RobotVelocityController;
 import MotorControl.WheelVelocityController;
+import orc.Orc;
 
 public class RobotPositionController extends RobotVelocityController {
 
@@ -43,6 +44,10 @@ public class RobotPositionController extends RobotVelocityController {
 
     private double translationVel;
     private double rotationVel;
+    private Orc orc; // HACK: Used only to check if orc is currently being simulated
+                     // because things are flipped in that case (who knows why...)
+                     // Bianca would like me to also add the line:
+                     // Don't let Tej see this code
 
     public RobotPositionController(
             WheelVelocityController leftWheelVelocityController,
@@ -57,6 +62,7 @@ public class RobotPositionController extends RobotVelocityController {
 	this.direction = 1;
 	this.translationVel=0;
 	this.rotationVel=0;
+        this.orc = Orc.makeOrc(); // Only used to check if it's simulated
 	mode = NO_MOVE_MODE;
 	poseInitialized = false;
 	//System.out.println("I exist :O");
@@ -186,8 +192,8 @@ public class RobotPositionController extends RobotVelocityController {
 		    //System.out.println("diffvel: " + wheelDiffVel);
 		    //System.out.println("theta error: " + thetaError);
 		
-		    wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(-1*direction * (wheelAngVel - wheelDiffVel));
-		    wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(-1*direction * (wheelAngVel + wheelDiffVel));
+		    wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(direction * (wheelAngVel - wheelDiffVel));
+		    wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(direction * (wheelAngVel + wheelDiffVel));
 		}
 		else {
 		    // purely rotate to face that point
@@ -208,6 +214,13 @@ public class RobotPositionController extends RobotVelocityController {
 	    wheelVelocityController[RobotBase.LEFT].setDesiredAngularVelocity(translationVel - rotationVel);
 	    wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(translationVel + rotationVel);
 	}
+
+        if (!orc.isSim()) {
+            WheelVelocityController wvcLeft = wheelVelocityController[RobotBase.LEFT];
+            WheelVelocityController wvcRight = wheelVelocityController[RobotBase.RIGHT];
+            wvcLeft.setDesiredAngularVelocity(-1 * wvcLeft.getDesiredAngularVelocity());
+            wvcRight.setDesiredAngularVelocity(-1 * wvcRight.getDesiredAngularVelocity());
+        }
 	
         System.out.println("output: " + wheelVelocityController[RobotBase.LEFT].getDesiredAngularVelocity() + "," + wheelVelocityController[RobotBase.RIGHT].getDesiredAngularVelocity());
         super.controlStep(control);
