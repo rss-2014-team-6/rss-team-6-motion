@@ -86,7 +86,7 @@ public class Listener extends AbstractNodeMain {
             log.info("motor Subscriber created");
             */
 
-            waypointSub = node.newSubscriber("/path/Waypoint", "rss_msgs/WaypointMsg");
+            waypointSub = node.newSubscriber("/state/Waypoint", "rss_msgs/WaypointMsg");
             waypointSub.addMessageListener(new MotorListenerForWaypoint(robotPositionController));
             log.info("waypoint Subscriber created");
 
