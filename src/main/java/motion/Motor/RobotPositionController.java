@@ -215,13 +215,7 @@ public class RobotPositionController extends RobotVelocityController {
 	    wheelVelocityController[RobotBase.RIGHT].setDesiredAngularVelocity(translationVel + rotationVel);
 	}
 
-        if (!orc.isSim()) {
-            WheelVelocityController wvcLeft = wheelVelocityController[RobotBase.LEFT];
-            WheelVelocityController wvcRight = wheelVelocityController[RobotBase.RIGHT];
-            wvcLeft.setDesiredAngularVelocity(-1 * wvcLeft.getDesiredAngularVelocity());
-            wvcRight.setDesiredAngularVelocity(-1 * wvcRight.getDesiredAngularVelocity());
-        }
-	
+		
         System.out.println("output: " + wheelVelocityController[RobotBase.LEFT].getDesiredAngularVelocity() + "," + wheelVelocityController[RobotBase.RIGHT].getDesiredAngularVelocity());
         super.controlStep(control);
     }
