@@ -16,8 +16,8 @@ public class RobotPositionController extends RobotVelocityController {
     protected double yGoal;
     protected double thetaGoal;
     protected static final double maxSpeed = 3.0;
-    protected static final double minTranslationSpeed = 1.5;
-    protected static final double minRotationSpeed = 2.0;
+    protected static final double minTranslationSpeed = 1.75;
+    protected static final double minRotationSpeed = 2.25;
     protected static final double rotationGain = 2.0; // Rotational gain for pure rotation to point
     protected static final double arcRotationGain = 1.0; // Rotational gain for arcing rotation component
     protected static final double translationGain = 5.0; // Translational gain for arcing/linear motion
